@@ -58,6 +58,7 @@ class FolderSuggest extends AbstractInputSuggest<TFolder> {
   }
   selectSuggestion(folder: TFolder): void {
     this.setValue(folder.path);
+    this.inputEl.dispatchEvent(new Event("input"));
     this.close();
   }
 }
@@ -79,6 +80,7 @@ class FileSuggest extends AbstractInputSuggest<TFile> {
   }
   selectSuggestion(file: TFile): void {
     this.setValue(file.path);
+    this.inputEl.dispatchEvent(new Event("input"));
     this.close();
   }
 }
@@ -159,6 +161,18 @@ export default class WorklogPlugin extends Plugin {
     await this.saveData(this.settings);
   }
 
+  // Creates all folders in a path that don't already exist
+  private async ensureFolderPath(folderPath: string): Promise<void> {
+    const parts = folderPath.split("/").filter(Boolean);
+    let current = "";
+    for (const part of parts) {
+      current = current ? `${current}/${part}` : part;
+      if (!this.app.vault.getAbstractFileByPath(current)) {
+        await this.app.vault.createFolder(current);
+      }
+    }
+  }
+
   private async createWorklog(): Promise<void> {
     const today = new Date();
     const monday = getMondayOfWeek(today);
@@ -169,7 +183,7 @@ export default class WorklogPlugin extends Plugin {
     const title = resolveTitle(this.settings.titleTemplate || DEFAULT_SETTINGS.titleTemplate, monday, sunday, dateFormat);
     const weekNum = pad(getISOWeekNumber(monday));
     const fileName = `${monday.getFullYear()}_W${weekNum}.md`;
-    const folder = this.settings.folder.trim();
+    const folder = this.settings.folder.trim().replace(/\/+$/, "");
     const filePath = folder ? `${folder}/${fileName}` : fileName;
 
     // Build the note with a heading per selected day
@@ -181,9 +195,9 @@ export default class WorklogPlugin extends Plugin {
       content += `## ${DAY_LABELS[i]} ${formatDate(day, dateFormat)}\n\n`;
     }
 
-    // Create the folder if it doesn't exist yet
-    if (folder && !this.app.vault.getAbstractFileByPath(folder)) {
-      await this.app.vault.createFolder(folder);
+    // Create the folder hierarchy if it doesn't exist yet
+    if (folder) {
+      await this.ensureFolderPath(folder);
     }
 
     // Open the note if it already exists, otherwise create it
@@ -209,10 +223,19 @@ export default class WorklogPlugin extends Plugin {
     const monthLabel = monday.toLocaleString("en-US", { month: "long" }) + " " + monday.getFullYear();
     const monthHeading = `## ${monthLabel}`;
 
-    const indexPath = this.settings.indexNotePath.trim();
+    const indexPath = this.settings.indexNotePath.trim().replace(/\/+$/, "");
+    if (!indexPath || !indexPath.endsWith(".md")) {
+      new Notice("Worklog: index note path must end with .md — check plugin settings.");
+      return;
+    }
     const indexFile = this.app.vault.getAbstractFileByPath(indexPath);
 
     if (!indexFile) {
+      // Ensure the index note's parent folder exists
+      const indexParent = indexPath.includes("/") ? indexPath.substring(0, indexPath.lastIndexOf("/")) : "";
+      if (indexParent) {
+        await this.ensureFolderPath(indexParent);
+      }
       // Create a fresh index with the first month section
       const content = `# Worklog Index\n---\n${monthHeading}\n${linkLine}\n`;
       await this.app.vault.create(indexPath, content);

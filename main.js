@@ -52,6 +52,7 @@ var FolderSuggest = class extends import_obsidian.AbstractInputSuggest {
   }
   selectSuggestion(folder) {
     this.setValue(folder.path);
+    this.inputEl.dispatchEvent(new Event("input"));
     this.close();
   }
 };
@@ -68,6 +69,7 @@ var FileSuggest = class extends import_obsidian.AbstractInputSuggest {
   }
   selectSuggestion(file) {
     this.setValue(file.path);
+    this.inputEl.dispatchEvent(new Event("input"));
     this.close();
   }
 };
@@ -114,6 +116,17 @@ var WorklogPlugin = class extends import_obsidian.Plugin {
   async saveSettings() {
     await this.saveData(this.settings);
   }
+  // Creates all folders in a path that don't already exist
+  async ensureFolderPath(folderPath) {
+    const parts = folderPath.split("/").filter(Boolean);
+    let current = "";
+    for (const part of parts) {
+      current = current ? `${current}/${part}` : part;
+      if (!this.app.vault.getAbstractFileByPath(current)) {
+        await this.app.vault.createFolder(current);
+      }
+    }
+  }
   async createWorklog() {
     const today = /* @__PURE__ */ new Date();
     const monday = getMondayOfWeek(today);
@@ -123,7 +136,7 @@ var WorklogPlugin = class extends import_obsidian.Plugin {
     const title = resolveTitle(this.settings.titleTemplate || DEFAULT_SETTINGS.titleTemplate, monday, sunday, dateFormat);
     const weekNum = pad(getISOWeekNumber(monday));
     const fileName = `${monday.getFullYear()}_W${weekNum}.md`;
-    const folder = this.settings.folder.trim();
+    const folder = this.settings.folder.trim().replace(/\/+$/, "");
     const filePath = folder ? `${folder}/${fileName}` : fileName;
     let content = `# ${title}
 ---
@@ -136,8 +149,8 @@ var WorklogPlugin = class extends import_obsidian.Plugin {
 
 `;
     }
-    if (folder && !this.app.vault.getAbstractFileByPath(folder)) {
-      await this.app.vault.createFolder(folder);
+    if (folder) {
+      await this.ensureFolderPath(folder);
     }
     const existing = this.app.vault.getAbstractFileByPath(filePath);
     if (existing) {
@@ -159,6 +172,10 @@ var WorklogPlugin = class extends import_obsidian.Plugin {
     const indexPath = this.settings.indexNotePath.trim();
     const indexFile = this.app.vault.getAbstractFileByPath(indexPath);
     if (!indexFile) {
+      const indexParent = indexPath.includes("/") ? indexPath.substring(0, indexPath.lastIndexOf("/")) : "";
+      if (indexParent) {
+        await this.ensureFolderPath(indexParent);
+      }
       const content = `# Worklog Index
 ---
 ${monthHeading}
