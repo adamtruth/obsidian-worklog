@@ -1,4 +1,4 @@
-# Obsidian Worklog
+# Worklog
 
 This is an [Obsidian](https://obsidian.md) plugin to create worklogs to fill in
 through out the week.

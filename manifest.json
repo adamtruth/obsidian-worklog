@@ -1,10 +1,10 @@
 {
-  "id": "obsidian-worklog",
-  "name": "Worklog",
-  "version": "1.0.0",
-  "minAppVersion": "0.15.0",
-  "description": "Create a weekly worklog note and append to a worklog index note.",
+  "id": "weekworklog",
+  "name": "Week Worklog",
+  "version": "0.1.1",
+  "minAppVersion": "0.1.0",
+  "description": "Simple weekly worklog with tracking in a worklog index.",
   "author": "Adam Amin",
-  "authorUrl": "github.com/adamtruth",
+  "authorUrl": "adamtruth.com",
   "isDesktopOnly": false
 }
