@@ -1,0 +1,27 @@
+{
+  "name": "worklog",
+  "version": "1.0.0",
+  "description": "Obsidian plugin that creates weekly worklog notes with configurable day sections and a month-grouped index.",
+  "main": "main.js",
+  "scripts": {
+    "build": "esbuild main.ts --bundle --external:obsidian --format=cjs --outfile=main.js",
+    "dev": "esbuild main.ts --bundle --external:obsidian --format=cjs --outfile=main.js --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adamtruth/obsidian-weekly-journal.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/adamtruth/obsidian-weekly-journal/issues"
+  },
+  "homepage": "https://github.com/adamtruth/obsidian-weekly-journal#readme",
+  "devDependencies": {
+    "esbuild": "^0.28.1",
+    "obsidian": "^1.13.1",
+    "typescript": "^7.0.2"
+  }
+}
