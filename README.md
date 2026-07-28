@@ -1,17 +1,13 @@
 # Worklog
 
 
-This is an [Obsidian](https://obsidian.md) plugin to create worklogs to fill in
+An [Obsidian](https://obsidian.md) plugin to create Worklogs to fill in
 through out the week.
 
-When a worklog is created for the week, it is also appended and linked to a worklog index file.
+When a Worklog is created for the week, it is appended/linked to a Worklog index file.
 This makes it easier to find and view your previous worklogs.
 
-My worklog for the current week:
-![Worklog Example](.github/images/worklog_example.png)
-
-My worklog index:
-![Index](.github/images/index.png)
+![Demo Video](.github/images/output.gif)
 
 I do not plan to be add this to the official Obsidian Plugins page now.
 
