@@ -1,6 +1,6 @@
 {
-  "id": "weekworklog",
-  "name": "Week Worklog",
+  "id": "worklog",
+  "name": "Worklog",
   "version": "0.1.1",
   "minAppVersion": "0.1.0",
   "description": "Simple weekly worklog with tracking in a worklog index.",
