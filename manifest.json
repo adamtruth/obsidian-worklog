@@ -1,7 +1,7 @@
 {
   "id": "weeklog",
   "name": "Weeklog",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "minAppVersion": "0.1.0",
   "description": "Generates a log for the week with automated tracking of previous weeklogs in an index file.",
   "author": "Adam Amin",
