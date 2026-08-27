@@ -5,6 +5,6 @@
   "minAppVersion": "0.1.0",
   "description": "Generates a log for the week with automated tracking of previous weeklogs in an index file.",
   "author": "Adam Amin",
-  "authorUrl": "adamtruth.com",
+  "authorUrl": "https://adamtruth.com",
   "isDesktopOnly": false
 }
