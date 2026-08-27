@@ -1,6 +1,6 @@
 {
   "name": "weeklog",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "Obsidian plugin that creates weeklogs with an automated tracking index.",
   "main": "main.js",
   "scripts": {
