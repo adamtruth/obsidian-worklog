@@ -22,7 +22,7 @@ const TITLE_PLACEHOLDERS: readonly [string, string][] = [
   ["{{week_end_iso}}", "YYYY-MM-DD of Sunday"],
 ];
 
-interface WorklogSettings {
+interface WeeklogSettings {
   folder: string;
   indexNotePath: string;
   titleTemplate: string;
@@ -32,9 +32,9 @@ interface WorklogSettings {
   includedDays: number[];
 }
 
-const DEFAULT_SETTINGS: WorklogSettings = {
-  folder: "Worklog",
-  indexNotePath: "Worklogs.md",
+const DEFAULT_SETTINGS: WeeklogSettings = {
+  folder: "Weeklog",
+  indexNotePath: "Weeklogs.md",
   titleTemplate: "Week {{week_number}}: ({{week_start}} - {{week_end}})",
   dateFormat: "M/D",
   includedDays: [0, 1, 2, 3, 4, 5, 6],
@@ -138,19 +138,19 @@ function resolveTitle(template: string, monday: Date, sunday: Date, dateFormat: 
     .replace(/{{week_end_iso}}/g, fmtISO(sunday));
 }
 
-export default class WorklogPlugin extends Plugin {
-  settings: WorklogSettings;
+export default class WeeklogPlugin extends Plugin {
+  settings: WeeklogSettings;
 
   async onload(): Promise<void> {
     await this.loadSettings();
 
     this.addCommand({
-      id: "create-worklog",
-      name: "Worklog note for the current week",
-      callback: () => this.createWorklog(),
+      id: "create-weeklog",
+      name: "Weeklog note for the current week",
+      callback: () => this.createWeeklog(),
     });
 
-    this.addSettingTab(new WorklogSettingTab(this.app, this));
+    this.addSettingTab(new WeeklogSettingTab(this.app, this));
   }
 
   async loadSettings(): Promise<void> {
@@ -173,7 +173,7 @@ export default class WorklogPlugin extends Plugin {
     }
   }
 
-  private async createWorklog(): Promise<void> {
+  private async createWeeklog(): Promise<void> {
     const today = new Date();
     const monday = getMondayOfWeek(today);
     const sunday = new Date(monday);
@@ -203,7 +203,7 @@ export default class WorklogPlugin extends Plugin {
     // Open the note if it already exists, otherwise create it
     const existing = this.app.vault.getAbstractFileByPath(filePath);
     if (existing) {
-      new Notice(`Worklog already exists: ${fileName}`);
+      new Notice(`Weeklog already exists: ${fileName}`);
       await this.app.workspace.getLeaf().openFile(existing as TFile);
       return;
     }
@@ -225,7 +225,7 @@ export default class WorklogPlugin extends Plugin {
 
     const indexPath = this.settings.indexNotePath.trim().replace(/\/+$/, "");
     if (!indexPath || !indexPath.endsWith(".md")) {
-      new Notice("Worklog: index note path must end with .md — check plugin settings.");
+      new Notice("Weeklog: index note path must end with .md — check plugin settings.");
       return;
     }
     const indexFile = this.app.vault.getAbstractFileByPath(indexPath);
@@ -237,7 +237,7 @@ export default class WorklogPlugin extends Plugin {
         await this.ensureFolderPath(indexParent);
       }
       // Create a fresh index with the first month section
-      const content = `# Worklog Index\n---\n${monthHeading}\n${linkLine}\n`;
+      const content = `# Weeklog Index\n---\n${monthHeading}\n${linkLine}\n`;
       await this.app.vault.create(indexPath, content);
       new Notice(`Created index: ${indexPath}`);
       return;
@@ -275,10 +275,10 @@ export default class WorklogPlugin extends Plugin {
   }
 }
 
-class WorklogSettingTab extends PluginSettingTab {
-  plugin: WorklogPlugin;
+class WeeklogSettingTab extends PluginSettingTab {
+  plugin: WeeklogPlugin;
 
-  constructor(app: App, plugin: WorklogPlugin) {
+  constructor(app: App, plugin: WeeklogPlugin) {
     super(app, plugin);
     this.plugin = plugin;
   }
@@ -286,13 +286,13 @@ class WorklogSettingTab extends PluginSettingTab {
   display(): void {
     const { containerEl } = this;
     containerEl.empty();
-    containerEl.createEl("h2", { text: "Worklog Settings" });
+    containerEl.createEl("h2", { text: "Weeklog Settings" });
 
     new Setting(containerEl)
-      .setName("Worklog folder")
-      .setDesc("New worklog notes are created here. Leave blank for vault root.")
+      .setName("Weeklog folder")
+      .setDesc("New weeklog notes are created here. Leave blank for vault root.")
       .addSearch((search) => {
-        search.setPlaceholder("e.g. Worklog").setValue(this.plugin.settings.folder);
+        search.setPlaceholder("e.g. Weeklog").setValue(this.plugin.settings.folder);
         new FolderSuggest(this.app, search.inputEl);
         search.onChange(async (value) => {
           this.plugin.settings.folder = value.trim();
@@ -302,9 +302,9 @@ class WorklogSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Index note")
-      .setDesc("(Optional) Note containing linked Worklog notes. Will be created if it does not exist.")
+      .setDesc("(Optional) Note containing linked Weeklog notes. Will be created if it does not exist.")
       .addSearch((search) => {
-        search.setPlaceholder("e.g. Worklogs.md").setValue(this.plugin.settings.indexNotePath);
+        search.setPlaceholder("e.g. Weeklogs.md").setValue(this.plugin.settings.indexNotePath);
         new FileSuggest(this.app, search.inputEl);
         search.onChange(async (value) => {
           this.plugin.settings.indexNotePath = value.trim();
@@ -327,8 +327,8 @@ class WorklogSettingTab extends PluginSettingTab {
       });
 
     new Setting(containerEl)
-      .setName("Worklog note title")
-      .setDesc("Title as the H1 heading in each worklog note. Supports placeholders below.")
+      .setName("Weeklog note title")
+      .setDesc("Title as the H1 heading in each weeklog note. Supports placeholders below.")
       .addText((text) => {
         text
           .setPlaceholder(DEFAULT_SETTINGS.titleTemplate)
@@ -358,7 +358,7 @@ class WorklogSettingTab extends PluginSettingTab {
     // Day selection toggles
     containerEl.createEl("h2", { text: "Days to include" });
     containerEl.createEl("p", {
-      text: "Choose which days appear as sections in the worklog note.",
+      text: "Choose which days appear as sections in the weeklog note.",
       cls: "setting-item-description",
     });
 

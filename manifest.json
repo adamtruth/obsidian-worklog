@@ -1,9 +1,9 @@
 {
-  "id": "worklog",
-  "name": "Worklog",
-  "version": "0.1.1",
+  "id": "weeklog",
+  "name": "Weeklog",
+  "version": "0.1.2",
   "minAppVersion": "0.1.0",
-  "description": "Simple weekly worklog with tracking in a worklog index.",
+  "description": "Weekly weeklog generator with automated tracking in an index file.",
   "author": "Adam Amin",
   "authorUrl": "adamtruth.com",
   "isDesktopOnly": false

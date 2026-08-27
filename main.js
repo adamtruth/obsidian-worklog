@@ -19,7 +19,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // main.ts
 var main_exports = {};
 __export(main_exports, {
-  default: () => WorklogPlugin
+  default: () => WeeklogPlugin
 });
 module.exports = __toCommonJS(main_exports);
 var import_obsidian = require("obsidian");
@@ -33,8 +33,8 @@ var TITLE_PLACEHOLDERS = [
   ["{{week_end_iso}}", "YYYY-MM-DD of Sunday"]
 ];
 var DEFAULT_SETTINGS = {
-  folder: "Worklog",
-  indexNotePath: "Worklogs.md",
+  folder: "Weeklog",
+  indexNotePath: "Weeklogs.md",
   titleTemplate: "Week {{week_number}}: ({{week_start}} - {{week_end}})",
   dateFormat: "M/D",
   includedDays: [0, 1, 2, 3, 4, 5, 6]
@@ -99,16 +99,16 @@ function resolveTitle(template, monday, sunday, dateFormat) {
   const today = /* @__PURE__ */ new Date();
   return template.replace(/{{date}}/g, fmtISO(today)).replace(/{{week_number}}/g, String(getISOWeekNumber(monday))).replace(/{{week_start}}/g, formatDate(monday, dateFormat)).replace(/{{week_end}}/g, formatDate(sunday, dateFormat)).replace(/{{week_start_iso}}/g, fmtISO(monday)).replace(/{{week_end_iso}}/g, fmtISO(sunday));
 }
-var WorklogPlugin = class extends import_obsidian.Plugin {
+var WeeklogPlugin = class extends import_obsidian.Plugin {
   settings;
   async onload() {
     await this.loadSettings();
     this.addCommand({
-      id: "create-worklog",
-      name: "Worklog note for the current week",
-      callback: () => this.createWorklog()
+      id: "create-weeklog",
+      name: "Weeklog note for the current week",
+      callback: () => this.createWeeklog()
     });
-    this.addSettingTab(new WorklogSettingTab(this.app, this));
+    this.addSettingTab(new WeeklogSettingTab(this.app, this));
   }
   async loadSettings() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
@@ -127,7 +127,7 @@ var WorklogPlugin = class extends import_obsidian.Plugin {
       }
     }
   }
-  async createWorklog() {
+  async createWeeklog() {
     const today = /* @__PURE__ */ new Date();
     const monday = getMondayOfWeek(today);
     const sunday = new Date(monday);
@@ -154,7 +154,7 @@ var WorklogPlugin = class extends import_obsidian.Plugin {
     }
     const existing = this.app.vault.getAbstractFileByPath(filePath);
     if (existing) {
-      new import_obsidian.Notice(`Worklog already exists: ${fileName}`);
+      new import_obsidian.Notice(`Weeklog already exists: ${fileName}`);
       await this.app.workspace.getLeaf().openFile(existing);
       return;
     }
@@ -169,14 +169,18 @@ var WorklogPlugin = class extends import_obsidian.Plugin {
     const linkLine = `- [[${linkTarget}|${title}]]`;
     const monthLabel = monday.toLocaleString("en-US", { month: "long" }) + " " + monday.getFullYear();
     const monthHeading = `## ${monthLabel}`;
-    const indexPath = this.settings.indexNotePath.trim();
+    const indexPath = this.settings.indexNotePath.trim().replace(/\/+$/, "");
+    if (!indexPath || !indexPath.endsWith(".md")) {
+      new import_obsidian.Notice("Weeklog: index note path must end with .md \u2014 check plugin settings.");
+      return;
+    }
     const indexFile = this.app.vault.getAbstractFileByPath(indexPath);
     if (!indexFile) {
       const indexParent = indexPath.includes("/") ? indexPath.substring(0, indexPath.lastIndexOf("/")) : "";
       if (indexParent) {
         await this.ensureFolderPath(indexParent);
       }
-      const content = `# Worklog Index
+      const content = `# Weeklog Index
 ---
 ${monthHeading}
 ${linkLine}
@@ -209,7 +213,7 @@ ${linkLine}
     new import_obsidian.Notice(`Link added to ${indexPath}`);
   }
 };
-var WorklogSettingTab = class extends import_obsidian.PluginSettingTab {
+var WeeklogSettingTab = class extends import_obsidian.PluginSettingTab {
   plugin;
   constructor(app, plugin) {
     super(app, plugin);
@@ -218,17 +222,17 @@ var WorklogSettingTab = class extends import_obsidian.PluginSettingTab {
   display() {
     const { containerEl } = this;
     containerEl.empty();
-    containerEl.createEl("h2", { text: "Worklog Settings" });
-    new import_obsidian.Setting(containerEl).setName("Worklog folder").setDesc("New worklog notes are created here. Leave blank for vault root.").addSearch((search) => {
-      search.setPlaceholder("e.g. Worklog").setValue(this.plugin.settings.folder);
+    containerEl.createEl("h2", { text: "Weeklog Settings" });
+    new import_obsidian.Setting(containerEl).setName("Weeklog folder").setDesc("New weeklog notes are created here. Leave blank for vault root.").addSearch((search) => {
+      search.setPlaceholder("e.g. Weeklog").setValue(this.plugin.settings.folder);
       new FolderSuggest(this.app, search.inputEl);
       search.onChange(async (value) => {
         this.plugin.settings.folder = value.trim();
         await this.plugin.saveSettings();
       });
     });
-    new import_obsidian.Setting(containerEl).setName("Index note").setDesc("(Optional) Note containing linked Worklog notes. Will be created if it does not exist.").addSearch((search) => {
-      search.setPlaceholder("e.g. Worklogs.md").setValue(this.plugin.settings.indexNotePath);
+    new import_obsidian.Setting(containerEl).setName("Index note").setDesc("(Optional) Note containing linked Weeklog notes. Will be created if it does not exist.").addSearch((search) => {
+      search.setPlaceholder("e.g. Weeklogs.md").setValue(this.plugin.settings.indexNotePath);
       new FileSuggest(this.app, search.inputEl);
       search.onChange(async (value) => {
         this.plugin.settings.indexNotePath = value.trim();
@@ -242,7 +246,7 @@ var WorklogSettingTab = class extends import_obsidian.PluginSettingTab {
         await this.plugin.saveSettings();
       });
     });
-    new import_obsidian.Setting(containerEl).setName("Worklog note title").setDesc("Title as the H1 heading in each worklog note. Supports placeholders below.").addText((text) => {
+    new import_obsidian.Setting(containerEl).setName("Weeklog note title").setDesc("Title as the H1 heading in each weeklog note. Supports placeholders below.").addText((text) => {
       text.setPlaceholder(DEFAULT_SETTINGS.titleTemplate).setValue(this.plugin.settings.titleTemplate);
       text.onChange(async (value) => {
         this.plugin.settings.titleTemplate = value || DEFAULT_SETTINGS.titleTemplate;
@@ -264,7 +268,7 @@ var WorklogSettingTab = class extends import_obsidian.PluginSettingTab {
     }
     containerEl.createEl("h2", { text: "Days to include" });
     containerEl.createEl("p", {
-      text: "Choose which days appear as sections in the worklog note.",
+      text: "Choose which days appear as sections in the weeklog note.",
       cls: "setting-item-description"
     });
     DAY_LABELS.forEach((label, i) => {
