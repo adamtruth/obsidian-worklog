@@ -1,27 +1,23 @@
 # Weeklog
 
-An [Obsidian](https://obsidian.md) plugin to create a Weeklog to fill in
-through out the week.
+An [Obsidian](https://obsidian.md) plugin to generate a weekly log note to fill in throughout the week.
 
-When a Weeklog is created for the week, it is appended/linked to a Weeklog index file.
-This makes it easier to find and view your previous weeklogs.
+When the **Create Weeklog** command is used, a log note is generated for the current week.
+The index file then gets a new week appended to it, making the tracking of previous weeks easier.
 
-I do not plan to be add this to the official Obsidian Plugins page now.
+## Installation
 
-## Steps to add plugin
-1. Clone the repo:
-```sh
-git clone https://github.com/adamtruth/obsidian-weeklog.git
-```
-2. Copy the plugin to your Obsidian vault
-```sh
-cp obsidian-weeklog <Your_Vault>/.obsidian/plugins
-```
-3. In Obsidian Settings -> Community Plugins: enable Weeklog.
+1. Open Obsidian and go to **Settings → Community Plugins**
+2. Search for "Weeklog"
+3. Click **Install**
+4. Enable the plugin by clicking the toggle next to "Weeklog"
 
-4. In the Obsidian Settings -> Weeklog: Customize to your liking.
+## Configuration
+
+After installing, customize the plugin to your liking in **Settings → Weeklog**.
 
 ## Usage
-1. Ctrl+P for your command options (Cmd on Mac)
+
+1. Press `Ctrl+P` to open the command palette (`Cmd+P` on Mac)
 2. Type "Weeklog"
 3. Select "Weeklog note for the current week"
